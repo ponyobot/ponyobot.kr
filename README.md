@@ -1,7 +1,7 @@
 # 🐟 PonyoBot — Website
 
-This is the official website of Ponyobot.
-포뇨봇의 공식 웹사이트입니다.
+- This is the official website of Ponyobot.
+- 포뇨봇의 공식 웹사이트입니다.
 
 ---
 
