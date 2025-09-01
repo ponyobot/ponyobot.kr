@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>PonyoBot</title>
+    <meta name="description" content="카카오톡 오픈채팅방 관리를 위한 최적화된 서비스를 제공합니다.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="PonyoBot" />
+    <meta property="og:description" content="카카오톡 오픈채팅방 관리를 위한 최적화된 서비스를 제공합니다." />
+    <meta property="og:image" content="https://ponyobot.kr/images/banner.jpg" />
+    <meta property="og:url" content="https://ponyobot.kr" />
+    <meta property="og:type" content="website" />
+
+    <!-- 파비콘 -->
+    <link rel="icon" type="image/png" href="/images/icon.png" />
+
+    <!-- 외부 리소스 -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #ff6b8a;
+            --primary-hover: #ff5577;
+            --secondary-color: #ff8fa3;
+            --accent-color: #7dd3c0;
+            --success-color: #4ecdc4;
+            --warning-color: #ffb347;
+            --error-color: #ff6b8a;
+
+            /* Light theme */
+            --bg-primary: #ffffff;
+            --bg-secondary: #fef9f9;
+            --bg-tertiary: #fff0f3;
+            --bg-card: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --text-tertiary: #718096;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(255, 107, 138, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(255, 107, 138, 0.1), 0 2px 4px -1px rgba(255, 107, 138, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(255, 107, 138, 0.15), 0 4px 6px -2px rgba(255, 107, 138, 0.1);
+            --gradient-bg: linear-gradient(135deg, #7dd3c0 0%, #a8e6cf 30%, #ffd3a5 70%, #ffaaa5 100%);
+
+            /* Light mode hover colors */
+            --hover-bg: #fff0f3;
+            --hover-text: #d6336c;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-tertiary: #4a5568;
+            --bg-card: #2d3748;
+            --text-primary: #f7fafc;
+            --text-secondary: #e2e8f0;
+            --text-tertiary: #a0aec0;
+            --border-color: #4a5568;
+            --shadow-sm: 0 1px 2px 0 rgba(124, 58, 237, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(124, 58, 237, 0.2), 0 2px 4px -1px rgba(124, 58, 237, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(124, 58, 237, 0.25), 0 4px 6px -2px rgba(124, 58, 237, 0.15);
+            --gradient-bg: linear-gradient(135deg, #2d3748 0%, #4a5568 30%, #553c9a 70%, #7c3aed 100%);
+
+            /* Dark mode hover colors - Purple theme */
+            --hover-bg: #7c3aed;
+            --hover-text: #ffffff;
+
+            /* Dark mode primary colors - Purple theme */
+            --primary-color: #a855f7;
+            --primary-hover: #9333ea;
+            --secondary-color: #c084fc;
+            --accent-color: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--gradient-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 1rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        [data-theme="dark"] .header {
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        /* 로고 클릭/호버 스타일 */
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        /* Light mode logo hover */
+        .logo:hover,
+        .logo:active {
+            background: var(--hover-bg);
+            color: var(--hover-text);
+        }
+
+        .logo:hover .material-symbols-outlined,
+        .logo:active .material-symbols-outlined {
+            color: var(--hover-text);
+        }
+
+        /* Dark mode logo hover - Light purple */
+        [data-theme="dark"] .logo:hover,
+        [data-theme="dark"] .logo:active {
+            background: #9333ea;
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .logo:hover .material-symbols-outlined,
+        [data-theme="dark"] .logo:active .material-symbols-outlined {
+            color: #ffffff;
+        }
+
+        .logo .material-icons {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-selector,
+        .language-selector {
+            position: relative;
+        }
+
+        .dropdown-btn {
+            background: var(--bg-header);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            cursor: default;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            box-shadow: var(--shadow-sm);
+            border: none !important;
+            outline: none !important;
+        }
+
+        .dropdown-btn:hover {
+            background: var(--bg-tertiary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Dark mode dropdown button hover - Purple */
+        [data-theme="dark"] .dropdown-btn:hover {
+            background: #7c3aed;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            padding: 0.5rem;
+            min-width: 170px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: default;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .dropdown-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .dropdown-item .material-icons,
+        .dropdown-item .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        /* Updated dropdown item hover styles for theme-specific colors */
+        .dropdown-item.active,
+        .dropdown-item:hover {
+            background: var(--hover-bg) !important;
+            color: var(--hover-text) !important;
+        }
+
+        .dropdown-item.active .material-icons,
+        .dropdown-item.active .material-symbols-outlined,
+        .dropdown-item:hover .material-icons,
+        .dropdown-item:hover .material-symbols-outlined {
+            color: var(--hover-text) !important;
+        }
+
+        /* Light mode specific override - always use pink hover */
+        [data-theme="light"] .dropdown-item:hover,
+        [data-theme="light"] .dropdown-item.active {
+            background: #fff0f3 !important;
+            color: #d6336c !important;
+        }
+
+        [data-theme="light"] .dropdown-item:hover .material-icons,
+        [data-theme="light"] .dropdown-item:hover .material-symbols-outlined,
+        [data-theme="light"] .dropdown-item.active .material-icons,
+        [data-theme="light"] .dropdown-item.active .material-symbols-outlined {
+            color: #d6336c !important;
+        }
+
+        /* Main Content */
+        .main {
+            padding: 4rem 0;
+        }
+
+        .hero-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6rem;
+            min-height: 59vh;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Dark mode hero badge - Purple glow effect */
+        [data-theme="dark"] .hero-badge {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .hero-title .highlight {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-tertiary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: default;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Updated secondary button hover with theme-specific colors */
+        .btn-secondary:hover {
+            background: var(--hover-bg);
+            color: var(--hover-text);
+            transform: translateY(-2px);
+        }
+
+        /* Dark mode secondary button hover - Purple border */
+        [data-theme="dark"] .btn-secondary:hover {
+            border-color: #7c3aed;
+        }
+
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-left: 2rem;
+        }
+
+        .hero-icon {
+            width: 200px;
+            height: 200px;
+            background: var(--bg-card);
+            border-radius: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            opacity: 0.1;
+        }
+
+        .hero-icon .material-icons {
+            font-size: 6rem;
+            color: var(--primary-color);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Dark mode hero icon - Purple glow */
+        [data-theme="dark"] .hero-icon {
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+        }
+
+        .services-section {
+            margin-bottom: 4rem;
+            min-height: 600px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        /* 수정된 서비스 카드 스타일 */
+        .service-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            min-height: 250px;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        /* Light mode service card hover */
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Dark mode service card hover - Purple gradient */
+        [data-theme="dark"] .service-card::before {
+            background: linear-gradient(90deg, #7c3aed, #a855f7);
+        }
+
+        /* 서비스 카드 컨텐츠 영역 */
+        .service-content {
+            flex: 1;
+            padding: 2rem;
+            margin-right: 10px;
+        }
+
+        .service-arrow {
+            width: 60px;
+            height: 250px;
+            margin: auto 15px auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--hover-bg);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Light mode service arrow hover */
+        .service-arrow:hover {
+            background: #f8b0c9;
+        }
+
+        .service-arrow:hover .material-icons {
+            color: #d6336c;
+        }
+
+        /* Dark mode service arrow - Purple background by default */
+        [data-theme="dark"] .service-arrow {
+            background: #553c9a;
+        }
+
+        [data-theme="dark"] .service-arrow:hover {
+            background: #7c3aed;
+        }
+
+        [data-theme="dark"] .service-arrow:hover .material-icons {
+            color: #e0e7ff;
+        }
+
+        [data-theme="dark"] .service-arrow .material-icons {
+            color: #e2e8f0;
+        }
+
+        .service-arrow .material-icons {
+            font-size: 24px;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* Dark mode service icon - Purple gradient */
+        [data-theme="dark"] .service-icon {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+        }
+
+        .service-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .service-description {
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .service-features {
+            list-style: none;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .service-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .service-features .material-icons {
+            font-size: 1rem;
+            color: var(--primary-color);
+        }
+
+        /* Dark mode service features icons - Purple */
+        [data-theme="dark"] .service-features .material-icons {
+            color: #a855f7;
+        }
+
+        /* Utilities */
+        .loading {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .material-icons {
+            font-feature-settings: 'liga';
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            display: inline-block;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL'0, 'wght'400, 'GRAD'0, 'opsz'24;
+            font-family: 'Material Symbols Outlined';
+            display: inline-block;
+            line-height: 1;
+        }
+
+        /* hover 시 드롭다운 자동 표시 */
+        .theme-selector:hover .dropdown-menu {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+        }
+
+        .language-selector:hover .dropdown-menu {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+        }
+
+        .header.hide {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+
+        .footer {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1rem 1rem 0 0;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            margin: 3rem auto 0 auto;
+            margin-top: 3rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #555;
+            max-width: 1200px;
+        }
+
+        [data-theme="dark"] .footer {
+            background: rgba(45, 55, 72, 0.9);
+            color: #a0aec0;
+        }
+
+        .footer a {
+            color: inherit;
+            /* footer 글씨색 따라가게 */
+            text-decoration: none;
+            /* 밑줄 제거 */
+            font-weight: 600;
+            /* 글씨만 약간 강조 */
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+            /* 마우스 올리면 밑줄 */
+        }
+
+
+
+        /* Responsive tweaks */
+        @media (max-width: 968px) {
+            .hero-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 3rem;
+            }
+
+            .hero-image {
+                padding-left: 0;
+            }
+
+            .hero-icon {
+                width: 150px;
+                height: 150px;
+            }
+
+            .hero-icon .material-icons {
+                font-size: 4rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .nav-controls {
+                gap: 0.25rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .service-content {
+                padding: 1.5rem;
+            }
+
+            .service-arrow {
+                width: 60px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .service-content {
+                padding: 1.25rem;
+            }
+
+            .service-arrow {
+                width: 50px;
+            }
+        }
+
+        .material-icons,
+        .material-symbols-outlined {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .service-features {
+            list-style: none;
+            /* 기본 불릿 제거 */
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .service-features li {
+            position: relative;
+            padding-left: 1.4rem;
+            /* 왼쪽 여백 (불릿 자리 확보) */
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* 불릿 스타일 (CSS 의사요소로 생성) */
+        .service-features li::before {
+            content: "•";
+            /* 불릿 모양 */
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1rem;
+            line-height: 1.2;
+            color: var(--primary-color);
+            /* 🔥 여기서 색상은 소스와 동일한 --primary-color 사용 */
+        }
+    </style>
+    <style>
+        .service-features {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .service-features li {
+            position: relative;
+            padding-left: 1.4rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .service-features li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1rem;
+            line-height: 1.2;
+            color: var(--primary-color);
+        }
+    </style>
+    <style>
+        /* === FIXED CARD & ARROW SIZE (match original PC look) === */
+        .service-card {
+            height: 250px;
+            /* 카드 높이 고정 */
+            display: flex;
+            align-items: center;
+        }
+
+        .service-content {
+            padding: 2rem;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .service-arrow {
+            width: 60px;
+            height: 200px;
+            /* 원본 index.html에서 보이던 크기로 고정 */
+            flex: 0 0 60px;
+            margin: auto 15px auto 10px;
+        }
+
+        /* 모바일에서도 동일 유지 */
+        @media (max-width: 768px) {
+            .service-card {
+                height: 250px;
+            }
+
+            .service-arrow {
+                width: 60px;
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .service-card {
+                height: 250px;
+            }
+
+            .service-arrow {
+                width: 60px;
+                height: 200px;
+            }
+        }
+    </style>
+
+</head>
+
+<body data-theme="system">
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a class="logo" href="/">
+                    <span aria-hidden="true" class="material-symbols-outlined" translate="no">home</span>
+                    <span data-translate="logo">PonyoBot</span>
+                </a>
+                <div class="nav-controls">
+                    <!-- THEME: icon-only -->
+                    <div class="theme-selector">
+                        <button aria-label="테마" class="dropdown-btn" id="themeBtn">
+                            <span aria-hidden="true" class="material-symbols-outlined" id="themeIcon" translate="no">radio_button_partial</span>
+                        </button>
+                        <div class="dropdown-menu" id="themeMenu">
+                            <div class="dropdown-item" data-theme="system">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">radio_button_partial</span>
+                                <span data-translate="system">시스템</span>
+                            </div>
+                            <div class="dropdown-item" data-theme="light">
+                                <span aria-hidden="true" class="material-icons" translate="no">light_mode</span>
+                                <span data-translate="light">라이트</span>
+                            </div>
+                            <div class="dropdown-item" data-theme="dark">
+                                <span aria-hidden="true" class="material-icons" translate="no">dark_mode</span>
+                                <span data-translate="dark">다크</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="language-selector">
+                        <button aria-label="언어" class="dropdown-btn" id="langBtn">
+                            <span aria-hidden="true" class="material-symbols-outlined" id="langIcon" translate="no">language</span>
+                        </button>
+                        <div class="dropdown-menu" id="langMenu">
+                            <div class="dropdown-item" data-lang="ko">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>한국어</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="en">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>English</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="ja">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>日本語</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="zh-CN">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>简体中文</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="zh-TW">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>繁體中文</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="es">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>Español</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="fr">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>Français</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="de">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>Deutsch</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="ru">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>Русский</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="ar">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>العربية</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="pt">
+                                <span aria-hidden="true" class="material-symbols-outlined" translate="no">language</span>
+                                <span>Português</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <main class="main">
+        <div class="container">
+            <section class="hero-section loading">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span aria-hidden="true" class="material-icons" translate="no">stars</span>
+                        <span data-translate="badge">AI 서비스</span>
+                    </div>
+                    <h1 class="hero-title">
+                        <span data-translate="hero-title-1">포뇨봇</span><br />
+                        <span class="highlight" data-translate="hero-title-2">누구나 쉽게 사용 가능한 AI</span>
+                    </h1>
+                    <p class="hero-subtitle" data-translate="hero-subtitle">
+                        카카오톡 오픈채팅방 관리를 위한 최적화된 서비스를 제공합니다
+                    </p>
+                </div>
+                <div class="hero-image">
+                    <div class="hero-icon">
+                        <img src="images/profile.jpg" alt="Hero Image" style="width:100%; height:100%; object-fit:cover; border-radius:3rem;">
+                    </div>
+                </div>
+            </section>
+            <section class="services-section loading" style="animation-delay: 0.2s;">
+                <div class="services-grid">
+                    <div class="service-card" data-service="commands">
+                        <div class="service-content">
+                            <div class="service-header">
+                                <div class="service-icon">
+                                    <span aria-hidden="true" class="material-icons" translate="no">terminal</span>
+                                </div>
+                                <h3 class="service-title" data-translate="commands-title">명령어</h3>
+                            </div>
+                            <p class="service-description" data-translate="commands-desc">
+                                포뇨봇 명령어를 확인하세요.
+                            </p>
+                            <ul class="service-features">
+                                <li><span data-translate="feature-1">다양한 기능</span></li>
+                                <li><span data-translate="feature-2">관리·검색·AI 명령어</span></li>
+                                <li><span data-translate="feature-3">손쉬운 사용</span></li>
+                            </ul>
+                        </div>
+                        <div class="service-arrow">
+                            <span aria-hidden="true" class="material-icons" translate="no">arrow_forward</span>
+                        </div>
+                    </div>
+                    <div class="service-card" data-service="blog">
+                        <div class="service-content">
+                            <div class="service-header">
+                                <div class="service-icon">
+                                    <span aria-hidden="true" class="material-symbols-outlined" translate="no">article</span>
+                                </div>
+                                <h3 class="service-title" data-translate="blog-title">블로그</h3>
+                            </div>
+                            <p class="service-description" data-translate="blog-desc">
+                                최신 소식을 블로그에서 확인하세요.
+                            </p>
+                            <ul class="service-features">
+                                <li> <span data-translate="feature-4">빠른 응답</span></li>
+                                <li> <span data-translate="feature-5">경량 설계</span></li>
+                                <li> <span data-translate="feature-6">안정적 동작</span></li>
+                            </ul>
+                        </div>
+                        <div class="service-arrow">
+                            <span aria-hidden="true" class="material-icons" translate="no">arrow_forward</span>
+                        </div>
+                    </div>
+                    <div class="service-card" data-service="redirect">
+                        <div class="service-content">
+                            <div class="service-header">
+                                <div class="service-icon">
+                                    <span aria-hidden="true" class="material-symbols-outlined" translate="no">open_in_new</span>
+                                </div>
+                                <h3 class="service-title" data-translate="redirect-title">리다이렉트</h3>
+                            </div>
+                            <p class="service-description" data-translate="redirect-desc">
+                                안전한 링크 이동을 경험해보세요.
+                            </p>
+                            <ul class="service-features">
+                                <li> <span data-translate="feature-7">안전하고 신뢰할 수 있는 링크 이동</span></li>
+                                <li> <span data-translate="feature-8">빠른 링크 이동</span></li>
+                                <li> <span data-translate="feature-9">손쉬운 링크 연결</span></li>
+                            </ul>
+                        </div>
+                        <div class="service-arrow">
+                            <span aria-hidden="true" class="material-icons" translate="no">arrow_forward</span>
+                        </div>
+                    </div>
+                    <div class="service-card" data-service="status">
+                        <div class="service-content">
+                            <div class="service-header">
+                                <div class="service-icon">
+                                    <span aria-hidden="true" class="material-symbols-outlined" translate="no">analytics</span>
+                                </div>
+                                <h3 class="service-title" data-translate="status-title">상태페이지</h3>
+                            </div>
+                            <p class="service-description" data-translate="status-desc">
+                                실시간 서비스 상태 확인
+                            </p>
+                            <ul class="service-features">
+                                <li> <span data-translate="feature-10">실시간 서비스 모니터링</span></li>
+                                <li> <span data-translate="feature-11">신속한 장애 감지</span></li>
+                                <li> <span data-translate="feature-12">시각적 상태 표시</span></li>
+                            </ul>
+                        </div>
+                        <div class="service-arrow">
+                            <span aria-hidden="true" class="material-icons" translate="no">arrow_forward</span>
+                        </div>
+                    </div>
+                    <div class="service-card" data-service="api">
+                        <div class="service-content">
+                            <div class="service-header">
+                                <div class="service-icon">
+                                    <span aria-hidden="true" class="material-symbols-outlined" span="" translate="no">code</span>
+                                </div>
+                                <h3 class="service-title" data-translate="api-title">API</h3>
+                            </div>
+                            <p class="service-description" data-translate="api-desc">
+                                안정적이고 강력한 API 서비스를 경험하세요
+                            </p>
+                            <ul class="service-features">
+                                <li> <span data-translate="feature-13">MCP 프로토콜</span></li>
+                                <li> <span data-translate="feature-14">플러그인 시스템</span></li>
+                                <li> <span data-translate="feature-15">확장 가능</span></li>
+                            </ul>
+                        </div>
+                        <div class="service-arrow">
+                            <span aria-hidden="true" class="material-icons" translate="no">arrow_forward</span>
+                        </div>
+                    </div>
+                    <div class="service-card" data-service="developer">
+                        <div class="service-content">
+                            <div class="service-header">
+                                <div class="service-icon">
+                                    <span aria-hidden="true" class="material-symbols-outlined" span="" translate="no">person</span>
+                                </div>
+                                <h3 class="service-title" data-translate="developer-title">개발자 정보</h3>
+                            </div>
+                            <p class="service-description" data-translate="developer-desc">
+                                개발자 정보를 확인하세요.</p>
+                            <ul class="service-features">
+                                <li> <span data-translate="feature-16">피드백 및 문의</span></li>
+                                <li> <span data-translate="feature-17">피드백 및 문의</span></li>
+                                <li> <span data-translate="feature-18">최적화 가능</span></li>
+                            </ul>
+                        </div>
+                        <div class="service-arrow">
+                            <span aria-hidden="true" class="material-icons" translate="no">arrow_forward</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer class="footer">
+        <p>© 2025 ponyobot. All rights reserved.</p>
+        <p>
+            Powered by
+            <a href="https://github.com/ponyobot/ponyobot" target="_blank">ponyobot</a>
+        </p>
+    </footer>
+    <script>
+        // 번역 데이터
+        const translations = {
+            ko: {
+                "logo": "PonyoBot",
+                "theme": "테마",
+                "system": "시스템",
+                "light": "라이트",
+                "dark": "다크",
+                "badge": "AI 서비스",
+                "hero-title-1": "포뇨봇",
+                "hero-title-2": "사용하기 쉬운 AI",
+                "hero-subtitle": "카카오톡 오픈채팅방 관리를 위한 최적화된 서비스를 제공합니다",
+
+                "commands-title": "명령어",
+                "commands-desc": "포뇨봇 명령어입니다.",
+
+                "blog-title": "블로그",
+                "blog-desc": "포뇨봇 블로그입니다.",
+
+                "redirect-title": "리다이렉트",
+                "redirect-desc": "안전한 링크 이동을 경험해보세요.",
+
+                "status-title": "상태페이지",
+                "status-desc": "실시간 서비스 상태 확인",
+
+                "api-title": "API",
+                "api-desc": "안정적이고 강력한 API 서비스를 경험하세요",
+
+                "developer-title": "개발자 정보",
+                "developer-desc": "개발자 정보를 확인하세요",
+
+                "feature-1": "다양한 기능",
+                "feature-2": "관리·검색·AI 명령어",
+                "feature-3": "손쉬운 사용",
+                "feature-4": "이용약관",
+                "feature-5": "명령어",
+                "feature-6": "FAQ",
+                "feature-7": "신뢰할 수 있는 연결",
+                "feature-8": "빠른 링크 이동",
+                "feature-9": "손쉬운 링크 연결",
+                "feature-10": "실시간 서비스 모니터링",
+                "feature-11": "신속한 장애 감지",
+                "feature-12": "시각적 상태 표시",
+                "feature-13": "API 목록",
+                "feature-14": "API 목록",
+                "feature-15": "다양한 API",
+                "feature-16": "개발자 프로필",
+                "feature-17": "피드백 및 문의",
+                "feature-18": "연락처 정보"
+            },
+            en: {
+                "logo": "PonyoBot",
+                "theme": "Theme",
+                "system": "System",
+                "light": "Light",
+                "dark": "Dark",
+                "badge": "AI Service",
+                "hero-title-1": "PonyoBot",
+                "hero-title-2": "Easy-to-use AI",
+                "hero-subtitle": "We provide an optimized service for managing KakaoTalk open chat rooms.",
+
+                "commands-title": "Commands",
+                "commands-desc": "PonyoBot Commands.",
+
+                "blog-title": "Blog",
+                "blog-desc": "This is the PonyoBot Blog.",
+
+                "redirect-title": "Redirect",
+                "redirect-desc": "Experience safe link redirection.",
+
+                "status-title": "Status Page",
+                "status-desc": "Check real-time service status.",
+
+                "api-title": "API",
+                "api-desc": "Experience stable and powerful API services.",
+
+                "developer-title": "Developer Info",
+                "developer-desc": "Check the developer information.",
+
+                "feature-1": "Various Features",
+                "feature-2": "Management, Search, and AI Commands",
+                "feature-3": "Easy to use",
+                "feature-4": "Terms and Conditions",
+                "feature-5": "Commands",
+                "feature-6": "FAQ",
+                "feature-7": "Trusted Connection",
+                "feature-8": "Quick Link Navigation",
+                "feature-9": "Easy Link Connections",
+                "feature-10": "Real-time Service Monitoring",
+                "feature-11": "Rapid Issue Detection",
+                "feature-12": "Visual Status Display",
+                "feature-13": "API List",
+                "feature-14": "API List",
+                "feature-15": "Diverse APIs",
+                "feature-16": "Developer Profile",
+                "feature-17": "Feedback & Support",
+                "feature-18": "Contact Information"
+            },
+        };
+
+
+
+        // 서비스 링크 설정
+        const serviceLinks = {
+            commands: 'https://blog.ponyobot.kr/posts/cmd',
+            blog: 'https://blog.ponyobot.kr',
+            status: 'https://status.ponyobot.kr',
+            api: '/api/',
+            redirect: '/redirect/',
+            developer: '/dev/'
+        };
+
+        // 현재 설정
+        let currentTheme = 'system';
+        let currentLang = 'ko';
+
+        // DOM 요소
+        const themeBtn = document.getElementById('themeBtn');
+        const themeMenu = document.getElementById('themeMenu');
+        const themeIcon = document.getElementById('themeIcon');
+        const langBtn = document.getElementById('langBtn');
+        const langMenu = document.getElementById('langMenu');
+        const langIcon = document.getElementById('langIcon');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 저장된 설정 불러오기
+            currentTheme = localStorage.getItem('theme') || 'system';
+            currentLang = localStorage.getItem('language') || 'ko';
+
+            applyTheme(currentTheme);
+            applyLanguage(currentLang);
+
+            // 로딩 애니메이션 딜레이
+            setTimeout(() => {
+                document.querySelectorAll('.loading').forEach((el, i) => {
+                    el.style.animationDelay = `${i * 0.2}s`;
+                });
+            }, 100);
+        });
+
+        // 테마 적용
+        function applyTheme(theme) {
+            currentTheme = theme;
+            const body = document.body;
+
+            if (theme === 'system') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                body.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                themeIcon.textContent = 'radio_button_partial';
+            } else {
+                body.setAttribute('data-theme', theme);
+                themeIcon.textContent = theme === 'dark' ? 'dark_mode' : 'light_mode';
+            }
+
+            // 드롭다운
+            document.querySelectorAll('#themeMenu [data-theme]').forEach(item => {
+                item.classList.toggle('active', item.dataset.theme === theme);
+            });
+
+            localStorage.setItem('theme', theme);
+        }
+
+        // 언어 적용
+        function applyLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+
+            // 번역 텍스트 업데이트
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            // 드롭다운 활성 상태 업데이트
+            document.querySelectorAll('#langMenu [data-lang]').forEach(item => {
+                item.classList.toggle('active', item.dataset.lang === lang);
+            });
+
+            langIcon.textContent = 'language';
+
+            localStorage.setItem('language', lang);
+        }
+
+        // 이벤트 리스너
+        themeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const order = ['system', 'light', 'dark'];
+            let nextIndex = (order.indexOf(currentTheme) + 1) % order.length;
+            applyTheme(order[nextIndex]);
+        });
+
+        langBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const langs = ['ko', 'en', 'ja', 'zh-CN', 'zh-TW', 'es', 'fr', 'de', 'ru', 'ar', 'pt'];
+            let nextIndex = (langs.indexOf(currentLang) + 1) % langs.length;
+            applyLanguage(langs[nextIndex]);
+        });
+
+        // 테마 선택
+        themeMenu.addEventListener('click', (e) => {
+            const item = e.target.closest('[data-theme]');
+            if (item) {
+                applyTheme(item.dataset.theme);
+                themeMenu.classList.remove('active');
+            }
+        });
+
+        // 언어 선택
+        langMenu.addEventListener('click', (e) => {
+            const item = e.target.closest('[data-lang]');
+            if (item) {
+                applyLanguage(item.dataset.lang);
+                langMenu.classList.remove('active');
+            }
+        });
+
+        // 서비스 카드
+        document.querySelectorAll('.service-card').forEach(card => {
+            const service = card.dataset.service;
+            const arrow = card.querySelector('.service-arrow');
+            if (arrow) {
+                arrow.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (service === 'redirect') window.location.href = '/redirect';
+                    else if (serviceLinks[service]) window.location.href = serviceLinks[service];
+                });
+            }
+        });
+
+        // 외부 클릭 시 드롭다운 닫기
+        document.addEventListener('click', () => {
+            themeMenu.classList.remove('active');
+            langMenu.classList.remove('active');
+        });
+
+        // 시스템 테마 변경 감지
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (currentTheme === 'system') applyTheme('system');
+        });
+
+        // 헤더 숨김 기능
+        document.addEventListener("scroll", () => {
+            const header = document.querySelector(".header");
+            const targetSection = document.querySelector(".services-section");
+            if (!header || !targetSection) return;
+
+            const rect = targetSection.getBoundingClientRect();
+            const offsetTop = rect.top + window.scrollY;
+            const triggerPoint = offsetTop - 160; // 카드 시작 조금 전에 헤더 숨기기
+
+            if (window.scrollY >= triggerPoint) {
+                header.classList.add("hide");
+            } else {
+                header.classList.remove("hide");
+            }
+        });
+    </script>
+</body>
+
+</html>
